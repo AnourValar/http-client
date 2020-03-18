@@ -2,8 +2,10 @@
 
 namespace AnourValar\HttpClient;
 
-class Response
+class Response implements \ArrayAccess
 {
+    use \AnourValar\HttpClient\Traits\ResponseArrayAccessTrait;
+
     /**
      * @var array
      */
@@ -39,6 +41,16 @@ class Response
         $this->responseBodyJson = json_decode($responseBody, true);
 
         $this->curlGetInfo = $curlGetInfo;
+    }
+
+    /**
+     * String access
+     *
+     * @return string|NULL
+     */
+    public function __toString()
+    {
+        return $this->responseBody;
     }
 
     /**
