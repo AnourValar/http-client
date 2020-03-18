@@ -1,0 +1,13 @@
+{
+    "name": "anourvalar/http-client",
+    "description": "HTTP client",
+    "keywords": ["http", "curl", "anourvalar"],
+    "homepage": "https://github.com/AnourValar/http-client",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.0.0"
+    },
+    "autoload": {
+        "psr-4": {"AnourValar\\HttpClient\\": "src/"}
+    }
+}
