@@ -125,13 +125,6 @@ class Http
      */
     public function body($body) : self
     {
-        if (is_array($body) &&
-            isset($this->options[CURLOPT_HTTPHEADER]) &&
-            in_array('Content-Type: '.self::CONTENT_TYPE_JSON, (array)$this->options[CURLOPT_HTTPHEADER])
-        ) {
-            $body = json_encode($body);
-        }
-
         $this->curlOption(CURLOPT_POSTFIELDS, $body);
 
         return $this;
@@ -300,6 +293,16 @@ class Http
         // URL
         if (! is_null($url)) {
             curl_setopt($cURL, CURLOPT_URL, $this->canonizeUrl($url));
+        }
+
+
+        // Body specific
+        if (isset($options[CURLOPT_POSTFIELDS]) &&
+            is_array($options[CURLOPT_POSTFIELDS]) &&
+            isset($options[CURLOPT_HTTPHEADER]) &&
+            in_array('Content-Type: '.self::CONTENT_TYPE_JSON, (array)$options[CURLOPT_HTTPHEADER])
+        ) {
+            $options[CURLOPT_POSTFIELDS] = json_encode($options[CURLOPT_POSTFIELDS]);
         }
 
 
