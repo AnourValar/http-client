@@ -69,12 +69,26 @@ class Http
      */
     public function reset(bool $defaultOptions = true) : self
     {
-        $this->after();
+        $this->options = [];
         $this->rememberOptions = [];
 
         if ($defaultOptions) {
             $this->applyDefaultOptions();
         }
+
+        return $this;
+    }
+
+    /**
+     * Extend info for dump
+     *
+     * @return self
+     */
+    public function extendInfo() : self
+    {
+        $this->options['extend_info'] = [
+            'request_body' => CURLOPT_POSTFIELDS,
+        ];
 
         return $this;
     }
@@ -97,8 +111,8 @@ class Http
             $key = explode(':', $value);
             $key = trim(mb_strtolower($key[0]));
 
-            unset($this->options[CURLOPT_HTTPHEADER][$key]); // push to the end of the array
-            $this->options[CURLOPT_HTTPHEADER][$key] = $value;
+            unset($this->options['curl'][CURLOPT_HTTPHEADER][$key]); // push to the end of the array
+            $this->options['curl'][CURLOPT_HTTPHEADER][$key] = $value;
         }
 
         return $this;
@@ -140,9 +154,9 @@ class Http
     public function curlOption(int $name, $value) : self
     {
         if (is_null($value)) {
-            unset($this->options[$name]);
+            unset($this->options['curl'][$name]);
         } else {
-            $this->options[$name] = $value;
+            $this->options['curl'][$name] = $value;
         }
 
         return $this;
@@ -169,12 +183,11 @@ class Http
      */
     public function exec(string $url) : \AnourValar\HttpClient\Response
     {
-        $cURL = $this->before($url, $headers);
+        $cURL = $this->prepare($url, $options, $headers);
 
         $responseBody = curl_exec($cURL);
-        $curlGetInfo = $this->buildCurlGetInfo($cURL);
+        $curlGetInfo = $this->buildCurlGetInfo($cURL, $options);
 
-        $this->after();
         curl_close($cURL);
 
         return new \AnourValar\HttpClient\Response($headers, $responseBody, $curlGetInfo);
@@ -188,7 +201,7 @@ class Http
      */
     public function multiExec(array $urls) : array
     {
-        $cURL = $this->before();
+        $cURL = $this->prepare(null, $options);
         $mcURL = curl_multi_init();
 
         $cURLs = [];
@@ -219,7 +232,7 @@ class Http
 
         foreach ($urls as $key => $url) {
             $responseBody = curl_multi_getcontent($cURLs[$key]);
-            $curlGetInfo = $this->buildCurlGetInfo($cURLs[$key]);
+            $curlGetInfo = $this->buildCurlGetInfo($cURLs[$key], $options);
 
             $result[$key] = new \AnourValar\HttpClient\Response($headers[$key], $responseBody, $curlGetInfo);
 
@@ -227,7 +240,6 @@ class Http
             curl_close($cURLs[$key]);
         }
 
-        $this->after();
         curl_multi_close($mcURL);
 
         return $result;
@@ -242,15 +254,14 @@ class Http
      */
     public function download(string $url, string $file) : \AnourValar\HttpClient\Response
     {
-        $cURL = $this->before($url, $headers);
+        $cURL = $this->prepare($url, $options, $headers);
 
         $fp = fopen($file, 'w+');
         curl_setopt($cURL, CURLOPT_FILE, $fp);
 
         $responseBody = curl_exec($cURL);
-        $curlGetInfo = $this->buildCurlGetInfo($cURL);
+        $curlGetInfo = $this->buildCurlGetInfo($cURL, $options);
 
-        $this->after();
         curl_close($cURL);
         fclose($fp);
 
@@ -281,13 +292,15 @@ class Http
 
     /**
      * @param string $url
+     * @param mixed $options
      * @param mixed $headers
      * @return resource
      */
-    private function before(string $url = null, &$headers = null)
+    private function prepare(string $url = null, &$options = null, &$headers = null)
     {
         $cURL = curl_init();
-        $options = array_replace_recursive($this->rememberOptions, $this->options);
+        $options = array_replace_recursive(['curl' => []], $this->rememberOptions, $this->options);
+        $this->options = [];
 
 
         // URL
@@ -297,20 +310,20 @@ class Http
 
 
         // Body specific
-        if (isset($options[CURLOPT_POSTFIELDS]) &&
-            is_array($options[CURLOPT_POSTFIELDS]) &&
-            isset($options[CURLOPT_HTTPHEADER]) &&
-            in_array('Content-Type: '.self::CONTENT_TYPE_JSON, (array)$options[CURLOPT_HTTPHEADER])
+        if (isset($options['curl'][CURLOPT_POSTFIELDS]) &&
+            is_array($options['curl'][CURLOPT_POSTFIELDS]) &&
+            isset($options['curl'][CURLOPT_HTTPHEADER]) &&
+            in_array('Content-Type: '.self::CONTENT_TYPE_JSON, (array)$options['curl'][CURLOPT_HTTPHEADER])
         ) {
-            $options[CURLOPT_POSTFIELDS] = json_encode($options[CURLOPT_POSTFIELDS]);
+            $options['curl'][CURLOPT_POSTFIELDS] = json_encode($options['curl'][CURLOPT_POSTFIELDS]);
         }
 
 
         // Method specific
-        $method = ( $options[CURLOPT_CUSTOMREQUEST] ?? null );
+        $method = ( $options['curl'][CURLOPT_CUSTOMREQUEST] ?? null );
 
         if ($method == 'POST') {
-            if (isset($options[CURLOPT_USERAGENT])) {
+            if (isset($options['curl'][CURLOPT_USERAGENT])) {
                 curl_setopt($cURL, CURLOPT_POST, 1);
             }
 
@@ -321,13 +334,13 @@ class Http
 
 
         // Options
-        curl_setopt_array($cURL, $options);
+        curl_setopt_array($cURL, $options['curl']);
 
 
         // Etc
         curl_setopt($cURL, CURLINFO_HEADER_OUT, true);
 
-        if (count(func_get_args()) > 1) {
+        if (count(func_get_args()) > 2) {
             curl_setopt($cURL, CURLOPT_HEADERFUNCTION, function ($cURL, $header) use (&$headers)
             {
                 $headers .= $header;
@@ -349,24 +362,23 @@ class Http
     }
 
     /**
-     * @return void
-     */
-    private function after() : void
-    {
-        $this->options = [];
-    }
-
-    /**
      * @param resource $cURL
+     * @param array $options
      * @return array
      */
-    private function buildCurlGetInfo($cURL) : array
+    private function buildCurlGetInfo($cURL, array $options) : array
     {
         $result = curl_getinfo($cURL);
 
         $result['curl_error'] = curl_error($cURL);
         if (! $result['curl_error']) {
             unset($result['curl_error']);
+        }
+
+        foreach (( $options['extend_info'] ?? [] ) as $key => $value) {
+            if (isset($options['curl'][$value])) {
+                $result[$key] = $options['curl'][$value];
+            }
         }
 
         return $result;
