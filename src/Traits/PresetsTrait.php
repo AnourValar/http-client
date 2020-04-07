@@ -153,18 +153,6 @@ trait PresetsTrait
     }
 
     /**
-     * Ignore response's body
-     *
-     * @return self
-     */
-    public function noBody() : self
-    {
-        $this->curlOption(CURLOPT_NOBODY, true);
-
-        return $this;
-    }
-
-    /**
      * Ignore SSL verification (not the best idea)
      *
      * @return self

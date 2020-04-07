@@ -126,7 +126,14 @@ class Http
      */
     public function method(string $method) : self
     {
-        $this->curlOption(CURLOPT_CUSTOMREQUEST, mb_strtoupper($method));
+        $method = mb_strtoupper($method);
+
+        if ($method == 'HEAD') {
+             $this->curlOption(CURLOPT_NOBODY, true);
+             $this->curlOption(CURLOPT_CUSTOMREQUEST, null);
+        } else {
+            $this->curlOption(CURLOPT_CUSTOMREQUEST, $method);
+        }
 
         return $this;
     }
