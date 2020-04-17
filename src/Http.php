@@ -119,6 +119,17 @@ class Http
     }
 
     /**
+     * @see self::addHeaders()
+     *
+     * @param mixed $headers
+     * @return self
+     */
+    public function headers($headers) : self
+    {
+        return $this->addHeaders($headers);
+    }
+
+    /**
      * Set request method
      *
      * @param string $method
