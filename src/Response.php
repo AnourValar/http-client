@@ -9,22 +9,22 @@ class Response implements \ArrayAccess
     /**
      * @var array
      */
-    private $responseHeaders;
+    protected $responseHeaders;
 
     /**
      * @var string|NULL
      */
-    private $responseBody;
+    protected $responseBody;
 
     /**
      * @var mixed
      */
-    private $responseBodyJson;
+    protected $responseBodyJson;
 
     /**
      * @var array
      */
-    private $curlGetInfo;
+    protected $curlGetInfo;
 
     /**
      * Setters
