@@ -58,7 +58,7 @@ class Response implements \ArrayAccess
      *
      * @return array
      */
-    public function headers() : array
+    public function headers(): array
     {
         return $this->responseHeaders;
     }
@@ -69,7 +69,7 @@ class Response implements \ArrayAccess
      * @param string $name
      * @return string|NULL
      */
-    public function header(string $name) : ?string
+    public function header(string $name): ?string
     {
         $name = str_replace(' ', '', mb_strtolower($name));
 
@@ -87,7 +87,7 @@ class Response implements \ArrayAccess
      *
      * @return integer|NULL
      */
-    public function status() : ?int
+    public function status(): ?int
     {
         return ( $this->curlGetInfo['http_code'] ?? null );
     }
@@ -95,9 +95,10 @@ class Response implements \ArrayAccess
     /**
      * Check if request succeeded (2xx http code)
      *
+     * @param string $successKey
      * @return bool
      */
-    public function success() : bool
+    public function success(string $successKey = null): bool
     {
         $status = $this->status();
 
@@ -116,6 +117,10 @@ class Response implements \ArrayAccess
             return false;
         }
 
+        if (isset($successKey) && empty($this->responseBodyJson[$successKey])) {
+            return false;
+        }
+
         return true;
     }
 
@@ -124,7 +129,7 @@ class Response implements \ArrayAccess
      *
      * @return string|NULL
      */
-    public function body() : ?string
+    public function body(): ?string
     {
         return $this->responseBody;
     }
@@ -144,7 +149,7 @@ class Response implements \ArrayAccess
      *
      * @return array
      */
-    public function curlGetInfo() : array
+    public function curlGetInfo(): array
     {
         return $this->curlGetInfo;
     }
@@ -155,7 +160,7 @@ class Response implements \ArrayAccess
      * @param boolean $all
      * @return array
      */
-    public function dump(bool $all = false) : array
+    public function dump(bool $all = false): array
     {
         $result = [];
 
@@ -183,7 +188,7 @@ class Response implements \ArrayAccess
      * @param string $headers
      * @return array
      */
-    private function parseHeaders(?string $headers) : array
+    private function parseHeaders(?string $headers): array
     {
         $result = [];
 

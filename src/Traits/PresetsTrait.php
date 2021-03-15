@@ -10,10 +10,10 @@ trait PresetsTrait
      * @param string $userAgent
      * @return self
      */
-    public function asBrowser($userAgent = null) : self
+    public function asBrowser($userAgent = null): self
     {
         if ($userAgent === null) {
-            $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36';
+            $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36';
         }
 
         $this->curlOption(CURLOPT_USERAGENT, $userAgent);
@@ -28,7 +28,7 @@ trait PresetsTrait
      * @param boolean $contentType
      * @return self
      */
-    public function asJsonClient($accept = true, $contentType = true) : self
+    public function asJsonClient($accept = true, $contentType = true): self
     {
         if ($accept) {
             $this->addHeaders('Accept: '.self::CONTENT_TYPE_JSON);
@@ -50,7 +50,7 @@ trait PresetsTrait
      * @param string $loginPassword
      * @return self
      */
-    public function proxy(string $host, string $loginPassword = null) : self
+    public function proxy(string $host, string $loginPassword = null): self
     {
         $this->curlOption(CURLOPT_PROXY, $host);
 
@@ -67,7 +67,7 @@ trait PresetsTrait
      * @param string $cookies
      * @return self
      */
-    public function cookies(string $cookies) : self
+    public function cookies(string $cookies): self
     {
         $this->curlOption(CURLOPT_COOKIE, $cookies);
 
@@ -80,7 +80,7 @@ trait PresetsTrait
      * @param string $file
      * @return self
      */
-    public function cookiesFile(string $file) : self
+    public function cookiesFile(string $file): self
     {
         $this->curlOption(CURLOPT_COOKIEFILE, $file);
         $this->curlOption(CURLOPT_COOKIEJAR, $file);
@@ -95,7 +95,7 @@ trait PresetsTrait
      * @param integer $responseMs
      * @return self
      */
-    public function timeouts(int $connectMs = null, int $responseMs = null) : self
+    public function timeouts(int $connectMs = null, int $responseMs = null): self
     {
         if ($connectMs !== null) {
             $this->curlOption(CURLOPT_CONNECTTIMEOUT_MS, $connectMs);
@@ -115,7 +115,7 @@ trait PresetsTrait
      * @param string $password
      * @return self
      */
-    public function authBasic(string $login, string $password) : self
+    public function authBasic(string $login, string $password): self
     {
         $this->curlOption(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
         $this->curlOption(CURLOPT_USERPWD, "$login:$password");
@@ -130,7 +130,7 @@ trait PresetsTrait
      * @param string $password
      * @return self
      */
-    public function authDigest(string $login, string $password) : self
+    public function authDigest(string $login, string $password): self
     {
         $this->curlOption(CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
         $this->curlOption(CURLOPT_USERPWD, "$login:$password");
@@ -145,7 +145,7 @@ trait PresetsTrait
      * @param string $type
      * @return self
      */
-    public function authToken(string $accessToken, string $type = 'Bearer') : self
+    public function authToken(string $accessToken, string $type = 'Bearer'): self
     {
         $this->addHeaders("Authorization: $type $accessToken");
 
@@ -157,7 +157,7 @@ trait PresetsTrait
      *
      * @return self
      */
-    public function ignoreSsl() : self
+    public function ignoreSsl(): self
     {
         $this->curlOption(CURLOPT_SSL_VERIFYPEER, 0);
         $this->curlOption(CURLOPT_SSL_VERIFYHOST, 0);
@@ -171,7 +171,7 @@ trait PresetsTrait
      * @param string $url
      * @return self
      */
-    public function referer(string $url) : self
+    public function referer(string $url): self
     {
         $this->curlOption(CURLOPT_REFERER, $this->canonizeUrl($url));
 
@@ -184,7 +184,7 @@ trait PresetsTrait
      * @param string $url
      * @return self
      */
-    public function referrer(string $url) : self
+    public function referrer(string $url): self
     {
         return $this->referer($url);
     }

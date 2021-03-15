@@ -49,7 +49,7 @@ class Http
      * @param callable $options
      * @return self
      */
-    public function remember(callable $options) : self
+    public function remember(callable $options): self
     {
         $currOptions = $this->options;
         $this->options = [];
@@ -67,7 +67,7 @@ class Http
      * @param boolean $defaultOptions
      * @return self
      */
-    public function reset(bool $defaultOptions = true) : self
+    public function reset(bool $defaultOptions = true): self
     {
         $this->options = [];
         $this->rememberOptions = [];
@@ -84,7 +84,7 @@ class Http
      *
      * @return self
      */
-    public function extendInfo() : self
+    public function extendInfo(): self
     {
         $this->options['extend_info'] = [
             'request_body' => CURLOPT_POSTFIELDS,
@@ -99,7 +99,7 @@ class Http
      * @param mixed $headers
      * @return self
      */
-    public function addHeaders($headers) : self
+    public function addHeaders($headers): self
     {
         $headers = (array)$headers;
 
@@ -124,7 +124,7 @@ class Http
      * @param mixed $headers
      * @return self
      */
-    public function headers($headers) : self
+    public function headers($headers): self
     {
         return $this->addHeaders($headers);
     }
@@ -135,7 +135,7 @@ class Http
      * @param string $method
      * @return self
      */
-    public function method(string $method) : self
+    public function method(string $method): self
     {
         $method = mb_strtoupper($method);
 
@@ -155,7 +155,7 @@ class Http
      * @param mixed $body
      * @return self
      */
-    public function body($body) : self
+    public function body($body): self
     {
         $this->curlOption(CURLOPT_POSTFIELDS, $body);
 
@@ -169,7 +169,7 @@ class Http
      * @param mixed $value
      * @return self
      */
-    public function curlOption(int $name, $value) : self
+    public function curlOption(int $name, $value): self
     {
         if (is_null($value)) {
             unset($this->options['curl'][$name]);
@@ -188,7 +188,7 @@ class Http
      * @param string $postname
      * @return \CurlFile
      */
-    public function attach(string $filename, string $mimetype = null, string $postname = null) : \CurlFile
+    public function attach(string $filename, string $mimetype = null, string $postname = null): \CurlFile
     {
         return new \CurlFile($filename, $mimetype, $postname);
     }
@@ -199,7 +199,7 @@ class Http
      * @param string $url
      * @return \AnourValar\HttpClient\Response
      */
-    public function exec(string $url) : \AnourValar\HttpClient\Response
+    public function exec(string $url): \AnourValar\HttpClient\Response
     {
         $cURL = $this->prepare($url, $options, $headers);
 
@@ -217,7 +217,7 @@ class Http
      * @param array $urls
      * @return array
      */
-    public function multiExec(array $urls) : array
+    public function multiExec(array $urls): array
     {
         $cURL = $this->prepare(null, $options);
         $mcURL = curl_multi_init();
@@ -270,7 +270,7 @@ class Http
      * @param string $file
      * @return \AnourValar\HttpClient\Response
      */
-    public function download(string $url, string $file) : \AnourValar\HttpClient\Response
+    public function download(string $url, string $file): \AnourValar\HttpClient\Response
     {
         $cURL = $this->prepare($url, $options, $headers);
 
@@ -294,7 +294,7 @@ class Http
     /**
      * @return void
      */
-    private function applyDefaultOptions() : void
+    private function applyDefaultOptions(): void
     {
         $this->remember(function (\AnourValar\HttpClient\Http $http)
         {
@@ -346,7 +346,7 @@ class Http
             }
 
             curl_setopt($cURL, CURLOPT_POSTREDIR, 1|2|4);
-        } else if ($method == 'PUT') {
+        } elseif ($method == 'PUT') {
             curl_setopt($cURL, CURLOPT_PUT, 1);
         }
 
@@ -374,7 +374,7 @@ class Http
      * @param string $url
      * @return string
      */
-    private function canonizeUrl(string $url) : string
+    private function canonizeUrl(string $url): string
     {
         return str_replace(' ', '%20', $url);
     }
@@ -384,7 +384,7 @@ class Http
      * @param array $options
      * @return array
      */
-    private function buildCurlGetInfo($cURL, array $options) : array
+    private function buildCurlGetInfo($cURL, array $options): array
     {
         $result = curl_getinfo($cURL);
 

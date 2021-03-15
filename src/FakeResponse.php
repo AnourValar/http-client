@@ -30,7 +30,7 @@ class FakeResponse extends Response
      * @param array $headers
      * @return string|NULL
      */
-    private function parseHeaders(array $headers) : ?string
+    private function parseHeaders(array $headers): ?string
     {
         $result = [];
 

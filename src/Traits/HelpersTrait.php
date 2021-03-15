@@ -11,7 +11,7 @@ trait HelpersTrait
      * @param mixed $body
      * @return \AnourValar\HttpClient\Response
      */
-    public function post(string $url, $body = null) : \AnourValar\HttpClient\Response
+    public function post(string $url, $body = null): \AnourValar\HttpClient\Response
     {
         if (count(func_get_args()) > 1) {
             $this->body($body);
@@ -27,7 +27,7 @@ trait HelpersTrait
      * @param mixed $body
      * @return \AnourValar\HttpClient\Response
      */
-    public function get(string $url, $body = null) : \AnourValar\HttpClient\Response
+    public function get(string $url, $body = null): \AnourValar\HttpClient\Response
     {
         if (count(func_get_args()) > 1) {
             $this->body($body);
@@ -43,7 +43,7 @@ trait HelpersTrait
      * @param mixed $body
      * @return \AnourValar\HttpClient\Response
      */
-    public function delete(string $url, $body = null) : \AnourValar\HttpClient\Response
+    public function delete(string $url, $body = null): \AnourValar\HttpClient\Response
     {
         if (count(func_get_args()) > 1) {
             $this->body($body);
@@ -59,7 +59,7 @@ trait HelpersTrait
      * @param mixed $body
      * @return \AnourValar\HttpClient\Response
      */
-    public function put(string $url, $body = null) : \AnourValar\HttpClient\Response
+    public function put(string $url, $body = null): \AnourValar\HttpClient\Response
     {
         if (count(func_get_args()) > 1) {
             $this->body($body);
