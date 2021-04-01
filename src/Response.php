@@ -117,7 +117,11 @@ class Response implements \ArrayAccess
             return false;
         }
 
-        if (isset($successKey) && empty($this->responseBodyJson[$successKey])) {
+        if (
+            isset($successKey) &&
+            empty($this->responseBodyJson[$successKey]) &&
+            !is_array($this->responseBodyJson[$successKey] ?? null)
+        ) {
             return false;
         }
 
