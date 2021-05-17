@@ -181,14 +181,14 @@ class Http
     }
 
     /**
-     * Upload file
+     * Returns an object for file uploading
      *
      * @param string $filename
      * @param string $mimetype
      * @param string $postname
      * @return \CurlFile
      */
-    public function attach(string $filename, string $mimetype = null, string $postname = null): \CurlFile
+    public function attachment(string $filename, string $mimetype = null, string $postname = null): \CurlFile
     {
         return new \CurlFile($filename, $mimetype, $postname);
     }
@@ -242,9 +242,11 @@ class Http
         }
 
         do {
-            curl_multi_exec($mcURL, $active);
-            curl_multi_select($mcURL);
-        } while($active > 0);
+            $status = curl_multi_exec($mcURL, $active);
+            if ($active) {
+                curl_multi_select($mcURL);
+            }
+        } while($active && $status == CURLM_OK);
 
         $result = [];
 
