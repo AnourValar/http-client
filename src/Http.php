@@ -181,19 +181,6 @@ class Http
     }
 
     /**
-     * Returns an object for file uploading
-     *
-     * @param string $filename
-     * @param string $mimetype
-     * @param string $postname
-     * @return \CurlFile
-     */
-    public function attachment(string $filename, string $mimetype = null, string $postname = null): \CurlFile
-    {
-        return new \CurlFile($filename, $mimetype, $postname);
-    }
-
-    /**
      * Send http request
      *
      * @param string $url
@@ -207,8 +194,10 @@ class Http
         $curlGetInfo = $this->buildCurlGetInfo($cURL, $options);
 
         curl_close($cURL);
+        $response = new \AnourValar\HttpClient\Response($headers, $responseBody, $curlGetInfo);
+        $this->handleDownload($response, $options);
 
-        return new \AnourValar\HttpClient\Response($headers, $responseBody, $curlGetInfo);
+        return $response;
     }
 
     /**
@@ -258,39 +247,12 @@ class Http
 
             curl_multi_remove_handle($mcURL, $cURLs[$key]);
             curl_close($cURLs[$key]);
+            $this->handleDownload($result[$key], $options);
         }
 
         curl_multi_close($mcURL);
 
         return $result;
-    }
-
-    /**
-     * Send http request and save response body to the file
-     *
-     * @param string $url
-     * @param string $file
-     * @return \AnourValar\HttpClient\Response
-     */
-    public function download(string $url, string $file): \AnourValar\HttpClient\Response
-    {
-        $cURL = $this->prepare($url, $options, $headers);
-
-        $fp = fopen($file, 'w+');
-        curl_setopt($cURL, CURLOPT_FILE, $fp);
-
-        $responseBody = curl_exec($cURL);
-        $curlGetInfo = $this->buildCurlGetInfo($cURL, $options);
-
-        curl_close($cURL);
-        fclose($fp);
-
-        $mapper = new \AnourValar\HttpClient\Response($headers, $responseBody, $curlGetInfo);
-        if (!$mapper->success() && is_file($file)) {
-            unlink($file);
-        }
-
-        return $mapper;
     }
 
     /**
@@ -402,5 +364,24 @@ class Http
         }
 
         return $result;
+    }
+
+    /**
+     * @param \AnourValar\HttpClient\Response $response
+     * @param array $options
+     * @return void
+     */
+    private function handleDownload(\AnourValar\HttpClient\Response $response, array $options): void
+    {
+        if (!isset($options['curl'][CURLOPT_FILE]) || !is_resource($options['curl'][CURLOPT_FILE])) {
+            return;
+        }
+
+        $file = stream_get_meta_data($options['curl'][CURLOPT_FILE])['uri'];
+        fclose($options['curl'][CURLOPT_FILE]);
+
+        if (!$response->success() && is_file($file)) {
+            unlink($file);
+        }
     }
 }
