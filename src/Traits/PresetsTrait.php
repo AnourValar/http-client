@@ -5,6 +5,19 @@ namespace AnourValar\HttpClient\Traits;
 trait PresetsTrait
 {
     /**
+     * Returns an object for file uploading
+     *
+     * @param string $filename
+     * @param string $mimetype
+     * @param string $postname
+     * @return \CurlFile
+     */
+    public function attachment(string $filename, string $mimetype = null, string $postname = null): \CurlFile
+    {
+        return new \CurlFile($filename, $mimetype, $postname);
+    }
+
+    /**
      * Set browser specific headers
      *
      * @param string $userAgent
@@ -13,7 +26,7 @@ trait PresetsTrait
     public function asBrowser($userAgent = null): self
     {
         if ($userAgent === null) {
-            $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36';
+            $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36';
         }
 
         $this->curlOption(CURLOPT_USERAGENT, $userAgent);
@@ -187,5 +200,18 @@ trait PresetsTrait
     public function referrer(string $url): self
     {
         return $this->referer($url);
+    }
+
+    /**
+     * Save response body to the file
+     *
+     * @param string $file
+     * @return self
+     */
+    public function download(string $file): self
+    {
+        $this->curlOption(CURLOPT_FILE, fopen($file, 'w+'));
+
+        return $this;
     }
 }
