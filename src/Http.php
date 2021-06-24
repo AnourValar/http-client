@@ -88,6 +88,7 @@ class Http
     {
         $this->options['extend_info'] = [
             'request_body' => CURLOPT_POSTFIELDS,
+            'request_body_put' => CURLOPT_INFILE,
         ];
 
         return $this;
@@ -141,7 +142,7 @@ class Http
 
         if ($method == 'HEAD') {
              $this->curlOption(CURLOPT_NOBODY, true);
-             $this->curlOption(CURLOPT_CUSTOMREQUEST, null);
+             $this->curlOption(CURLOPT_CUSTOMREQUEST, null); // remove from options
         } else {
             $this->curlOption(CURLOPT_CUSTOMREQUEST, $method);
         }
@@ -195,7 +196,7 @@ class Http
 
         curl_close($cURL);
         $response = new \AnourValar\HttpClient\Response($headers, $responseBody, $curlGetInfo);
-        $this->handleDownload($response, $options);
+        $this->handleAfter($response, $options);
 
         return $response;
     }
@@ -247,7 +248,7 @@ class Http
 
             curl_multi_remove_handle($mcURL, $cURLs[$key]);
             curl_close($cURLs[$key]);
-            $this->handleDownload($result[$key], $options);
+            $this->handleAfter($result[$key], $options);
         }
 
         curl_multi_close($mcURL);
@@ -310,8 +311,6 @@ class Http
             }
 
             curl_setopt($cURL, CURLOPT_POSTREDIR, 1|2|4);
-        } elseif ($method == 'PUT') {
-            curl_setopt($cURL, CURLOPT_PUT, 1);
         }
 
 
@@ -360,6 +359,11 @@ class Http
         foreach (( $options['extend_info'] ?? [] ) as $key => $value) {
             if (isset($options['curl'][$value])) {
                 $result[$key] = $options['curl'][$value];
+
+                if (is_resource($result[$key])) {
+                    rewind($result[$key]);
+                    $result[$key] = stream_get_contents($result[$key]);
+                }
             }
         }
 
@@ -371,17 +375,19 @@ class Http
      * @param array $options
      * @return void
      */
-    private function handleDownload(\AnourValar\HttpClient\Response $response, array $options): void
+    private function handleAfter(\AnourValar\HttpClient\Response $response, array $options): void
     {
-        if (!isset($options['curl'][CURLOPT_FILE]) || !is_resource($options['curl'][CURLOPT_FILE])) {
-            return;
+        if (isset($options['curl'][CURLOPT_FILE]) && is_resource($options['curl'][CURLOPT_FILE])) {
+            $file = stream_get_meta_data($options['curl'][CURLOPT_FILE])['uri'];
+            fclose($options['curl'][CURLOPT_FILE]);
+
+            if (!$response->success() && is_file($file)) {
+                unlink($file);
+            }
         }
 
-        $file = stream_get_meta_data($options['curl'][CURLOPT_FILE])['uri'];
-        fclose($options['curl'][CURLOPT_FILE]);
-
-        if (!$response->success() && is_file($file)) {
-            unlink($file);
+        if (isset($options['curl'][CURLOPT_INFILE]) && is_resource($options['curl'][CURLOPT_INFILE])) {
+            fclose($options['curl'][CURLOPT_INFILE]);
         }
     }
 }

@@ -10,11 +10,24 @@ trait PresetsTrait
      * @param string $filename
      * @param string $mimetype
      * @param string $postname
-     * @return \CurlFile
+     * @return \CURLFile
      */
-    public function attachment(string $filename, string $mimetype = null, string $postname = null): \CurlFile
+    public function file(string $filename, string $mimetype = null, string $postname = null): \CURLFile
     {
-        return new \CurlFile($filename, $mimetype, $postname);
+        return new \CURLFile($filename, $mimetype, $postname);
+    }
+
+    /**
+     * Returns an object for file uploading (from buffer)
+     *
+     * @param string $content
+     * @param string $mimetype
+     * @param string $postname
+     * @return \CURLStringFile
+     */
+    public function stringFile(string $content, string $mimetype = null, string $postname = null): \CURLStringFile
+    {
+        return new \CURLStringFile($content, $mimetype, $postname); // PHP 8.1
     }
 
     /**
@@ -26,7 +39,7 @@ trait PresetsTrait
     public function asBrowser($userAgent = null): self
     {
         if ($userAgent === null) {
-            $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36';
+            $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36';
         }
 
         $this->curlOption(CURLOPT_USERAGENT, $userAgent);
@@ -54,6 +67,20 @@ trait PresetsTrait
         return $this;
     }
 
+    /**
+     * Upload a file via PUT request
+     *
+     * @param string $filename
+     * @return self
+     */
+    public function putUpload(string $filename): self
+    {
+        return $this
+            ->method('PUT')
+            ->curlOption(CURLOPT_PUT, 1)
+            ->curlOption(CURLOPT_INFILE, fopen($filename, 'r'))
+            ->curlOption(CURLOPT_INFILESIZE, filesize($filename));
+    }
 
     /**
      * Set proxy
@@ -66,10 +93,7 @@ trait PresetsTrait
     public function proxy(string $host, string $loginPassword = null): self
     {
         $this->curlOption(CURLOPT_PROXY, $host);
-
-        if ($loginPassword !== null) {
-            $this->curlOption(CURLOPT_PROXYUSERPWD, $loginPassword);
-        }
+        $this->curlOption(CURLOPT_PROXYUSERPWD, $loginPassword);
 
         return $this;
     }
@@ -110,13 +134,8 @@ trait PresetsTrait
      */
     public function timeouts(int $connectMs = null, int $responseMs = null): self
     {
-        if ($connectMs !== null) {
-            $this->curlOption(CURLOPT_CONNECTTIMEOUT_MS, $connectMs);
-        }
-
-        if ($responseMs !== null) {
-            $this->curlOption(CURLOPT_TIMEOUT_MS, $responseMs);
-        }
+        $this->curlOption(CURLOPT_CONNECTTIMEOUT_MS, $connectMs);
+        $this->curlOption(CURLOPT_TIMEOUT_MS, $responseMs);
 
         return $this;
     }
