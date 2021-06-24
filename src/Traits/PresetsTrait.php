@@ -129,13 +129,13 @@ trait PresetsTrait
      * Set request timeouts
      *
      * @param integer $connectMs
-     * @param integer $responseMs
+     * @param integer $totalMs
      * @return self
      */
-    public function timeouts(int $connectMs = null, int $responseMs = null): self
+    public function timeouts(int $connectMs = null, int $totalMs = null): self
     {
         $this->curlOption(CURLOPT_CONNECTTIMEOUT_MS, $connectMs);
-        $this->curlOption(CURLOPT_TIMEOUT_MS, $responseMs);
+        $this->curlOption(CURLOPT_TIMEOUT_MS, $totalMs);
 
         return $this;
     }
