@@ -257,6 +257,17 @@ class Http
     }
 
     /**
+     * @throws \LogicException
+     * @return void
+     */
+    protected function checkForAvailability(): void
+    {
+        if (defined('ARTISAN_BINARY') && config('app.env') == 'testing') {
+            throw new \LogicException('Real http request detected during testing.');
+        }
+    }
+
+    /**
      * @return void
      */
     private function applyDefaultOptions(): void
@@ -281,6 +292,8 @@ class Http
      */
     private function prepare(string $url = null, &$options = null, &$headers = null)
     {
+        $this->checkForAvailability();
+
         $cURL = curl_init();
         $options = array_replace_recursive(['curl' => []], $this->rememberOptions, $this->options);
         $this->options = [];
