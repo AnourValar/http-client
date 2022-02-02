@@ -12,7 +12,7 @@ class Response implements \ArrayAccess
     protected $responseHeaders;
 
     /**
-     * @var string|NULL
+     * @var string|null
      */
     protected $responseBody;
 
@@ -46,7 +46,7 @@ class Response implements \ArrayAccess
     /**
      * String access
      *
-     * @return string|NULL
+     * @return string|null
      */
     public function __toString()
     {
@@ -67,7 +67,7 @@ class Response implements \ArrayAccess
      * Get response header (by name)
      *
      * @param string $name
-     * @return string|NULL
+     * @return string|null
      */
     public function header(string $name): ?string
     {
@@ -85,7 +85,7 @@ class Response implements \ArrayAccess
     /**
      * Get response status code
      *
-     * @return integer|NULL
+     * @return int|null
      */
     public function status(): ?int
     {
@@ -131,7 +131,7 @@ class Response implements \ArrayAccess
     /**
      * Get response body
      *
-     * @return string|NULL
+     * @return string|null
      */
     public function body(): ?string
     {
@@ -161,7 +161,7 @@ class Response implements \ArrayAccess
     /**
      * Dump
      *
-     * @param boolean $all
+     * @param bool $all
      * @return array
      */
     public function dump(bool $all = false): array

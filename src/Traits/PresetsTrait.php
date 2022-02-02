@@ -50,8 +50,8 @@ trait PresetsTrait
     /**
      * Set api client specific headers
      *
-     * @param boolean $accept
-     * @param boolean $contentType
+     * @param bool $accept
+     * @param bool $contentType
      * @return self
      */
     public function asJsonClient($accept = true, $contentType = true): self
@@ -128,8 +128,8 @@ trait PresetsTrait
     /**
      * Set request timeouts
      *
-     * @param integer $connectMs
-     * @param integer $totalMs
+     * @param int $connectMs
+     * @param int $totalMs
      * @return self
      */
     public function timeouts(int $connectMs = null, int $totalMs = null): self

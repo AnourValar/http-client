@@ -33,7 +33,7 @@ class Http
     private $rememberOptions = [];
 
     /**
-     * @param boolean $defaultOptions
+     * @param bool $defaultOptions
      * @return void
      */
     public function __construct(bool $defaultOptions = true)
@@ -64,7 +64,7 @@ class Http
     /**
      * Reset all options
      *
-     * @param boolean $defaultOptions
+     * @param bool $defaultOptions
      * @return self
      */
     public function reset(bool $defaultOptions = true): self
@@ -102,7 +102,7 @@ class Http
      */
     public function addHeaders($headers): self
     {
-        $headers = (array)$headers;
+        $headers = (array) $headers;
 
         foreach ($headers as $key => $value) {
             if (! is_numeric($key)) {
@@ -166,7 +166,7 @@ class Http
     /**
      * Set curl option (native)
      *
-     * @param integer $name
+     * @param int $name
      * @param mixed $value
      * @return self
      */
@@ -309,7 +309,7 @@ class Http
         if (isset($options['curl'][CURLOPT_POSTFIELDS]) &&
             is_array($options['curl'][CURLOPT_POSTFIELDS]) &&
             isset($options['curl'][CURLOPT_HTTPHEADER]) &&
-            in_array('Content-Type: '.self::CONTENT_TYPE_JSON, (array)$options['curl'][CURLOPT_HTTPHEADER])
+            in_array('Content-Type: '.self::CONTENT_TYPE_JSON, (array) $options['curl'][CURLOPT_HTTPHEADER])
         ) {
             $options['curl'][CURLOPT_POSTFIELDS] = json_encode($options['curl'][CURLOPT_POSTFIELDS]);
         }
