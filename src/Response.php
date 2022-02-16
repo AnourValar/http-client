@@ -206,7 +206,12 @@ class Response implements \ArrayAccess
             $header = array_map('trim', $header);
 
             if (isset($header[1])) {
-                $result[$header[0]] = $header[1];
+                if (isset($result[$header[0]])) {
+                    $result[$header[0]] = (array) $result[$header[0]];
+                    $result[$header[0]][] = $header[1];
+                } else {
+                    $result[$header[0]] = $header[1];
+                }
             } else {
                 $result[] = $header[0];
             }
