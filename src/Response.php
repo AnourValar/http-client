@@ -196,7 +196,7 @@ class Response implements \ArrayAccess
     {
         $result = [];
 
-        foreach (explode("\n", $headers) as $header) {
+        foreach (explode("\n", (string) $headers) as $header) {
             $header = trim($header);
             if (! mb_strlen($header)) {
                 continue;

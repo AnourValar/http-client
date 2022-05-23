@@ -182,6 +182,23 @@ class Http
     }
 
     /**
+     * Set url prefix
+     *
+     * @param string|null $baseUrl
+     * @return self
+     */
+    public function baseUrl(?string $baseUrl): self
+    {
+        if (is_null($baseUrl)) {
+            unset($this->options['base_url']);
+        } else {
+            $this->options['base_url'] = $baseUrl;
+        }
+
+        return $this;
+    }
+
+    /**
      * Send http request
      *
      * @param string $url
@@ -217,7 +234,7 @@ class Http
         foreach ($urls as $key => $url) {
             $cURLs[$key] = curl_copy_handle($cURL);
 
-            curl_setopt($cURLs[$key], CURLOPT_URL, $this->canonizeUrl($url));
+            curl_setopt($cURLs[$key], CURLOPT_URL, $this->canonizeUrl($url, $options));
             curl_setopt($cURLs[$key], CURLOPT_HEADERFUNCTION, function ($cURL, $header) use (&$headers, $key)
             {
                 if (! isset($headers[$key])) {
@@ -301,7 +318,7 @@ class Http
 
         // URL
         if (! is_null($url)) {
-            curl_setopt($cURL, CURLOPT_URL, $this->canonizeUrl($url));
+            curl_setopt($cURL, CURLOPT_URL, $this->canonizeUrl($url, $options));
         }
 
 
@@ -348,10 +365,15 @@ class Http
 
     /**
      * @param string $url
+     * @param array $options
      * @return string
      */
-    private function canonizeUrl(string $url): string
+    private function canonizeUrl(string $url, array $options): string
     {
+        if (isset($options['base_url'])) {
+            $url = $options['base_url'] . $url;
+        }
+
         return str_replace(' ', '%20', $url);
     }
 
