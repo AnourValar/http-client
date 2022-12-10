@@ -358,7 +358,7 @@ class Http
                 CURLOPT_PROGRESSFUNCTION,
                 function($cURL, $downloadSize, $downloaded, $uploadSize, $uploaded) use ($options) {
                     if ($downloadSize > ($options['size_limit'] * 1024)) {
-                        return 1;
+                        return 1; // non-0 breaks the connection
                     }
                 }
             );
@@ -419,7 +419,11 @@ class Http
             }
         }
 
-        if (isset($result['curl_error']) && stripos($result['curl_error'], 'Callback aborted') !== false) {
+        if (
+            isset($result['curl_error'])
+            && isset($options['size_limit'])
+            && stripos($result['curl_error'], 'callback aborted') !== false
+        ) {
             $result['http_code'] = 0;
             $result['curl_error'] .= " (due to size limit: {$options['size_limit']} kB)";
         }
