@@ -207,12 +207,9 @@ class Http
     public function exec(string $url): \AnourValar\HttpClient\Response
     {
         $cURL = $this->prepare($url, $options, $headers);
-        if (! empty($options['size_limit'])) {
-            $this->handleSizeLimit($cURL, $options['size_limit'], $aborted);
-        }
 
         $responseBody = curl_exec($cURL);
-        $curlGetInfo = $this->buildCurlGetInfo($cURL, $options, ($aborted ?? null));
+        $curlGetInfo = $this->buildCurlGetInfo($cURL, $options);
 
         curl_close($cURL);
         $response = new \AnourValar\HttpClient\Response($headers, $responseBody, $curlGetInfo);
@@ -234,7 +231,6 @@ class Http
 
         $cURLs = [];
         $headers = [];
-        $aborted = [];
         foreach ($urls as $key => $url) {
             $cURLs[$key] = curl_copy_handle($cURL);
 
@@ -249,11 +245,6 @@ class Http
                 return mb_strlen($header);
             });
 
-            if (! empty($options['size_limit'])) {
-                $aborted[$key] = null;
-                $this->handleSizeLimit($cURLs[$key], $options['size_limit'], $aborted[$key]);
-            }
-
             curl_multi_add_handle($mcURL, $cURLs[$key]);
         }
 
@@ -262,13 +253,14 @@ class Http
             if ($active) {
                 curl_multi_select($mcURL);
             }
+            curl_multi_info_read($mcURL);
         } while($active && $status == CURLM_OK);
 
         $result = [];
 
         foreach ($urls as $key => $url) {
             $responseBody = curl_multi_getcontent($cURLs[$key]);
-            $curlGetInfo = $this->buildCurlGetInfo($cURLs[$key], $options, ($aborted[$key] ?? null));
+            $curlGetInfo = $this->buildCurlGetInfo($cURLs[$key], $options);
 
             $result[$key] = new \AnourValar\HttpClient\Response(($headers[$key] ?? ''), $responseBody, $curlGetInfo);
 
@@ -357,6 +349,22 @@ class Http
         curl_setopt_array($cURL, $options['curl']);
 
 
+        // Size limit
+        if (! empty($options['size_limit'])) {
+            curl_setopt($cURL, CURLOPT_BUFFERSIZE, 256);
+            curl_setopt($cURL, CURLOPT_NOPROGRESS, false);
+            curl_setopt(
+                $cURL,
+                CURLOPT_PROGRESSFUNCTION,
+                function($cURL, $downloadSize, $downloaded, $uploadSize, $uploaded) use ($options) {
+                    if ($downloadSize > ($options['size_limit'] * 1024)) {
+                        return 1;
+                    }
+                }
+            );
+        }
+
+
         // Etc
         curl_setopt($cURL, CURLINFO_HEADER_OUT, true);
 
@@ -370,28 +378,6 @@ class Http
 
 
         return $cURL;
-    }
-
-    /**
-     * @param \CurlHandle $cURL
-     * @param int $sizeLimit
-     * @param int $aborted
-     * @return void
-     */
-    private function handleSizeLimit(\CurlHandle $cURL, int $sizeLimit, &$aborted = 0): void
-    {
-        curl_setopt($cURL, CURLOPT_BUFFERSIZE, 256);
-        curl_setopt($cURL, CURLOPT_NOPROGRESS, false);
-        curl_setopt(
-            $cURL,
-            CURLOPT_PROGRESSFUNCTION,
-            function($cURL, $downloadSize, $downloaded, $uploadSize, $uploaded) use ($sizeLimit, &$aborted) {
-                if ($downloadSize > ($sizeLimit * 1024)) {
-                    $aborted = 1;
-                    return 1;
-                }
-            }
-        );
     }
 
     /**
@@ -411,10 +397,9 @@ class Http
     /**
      * @param resource $cURL
      * @param array $options
-     * @param mixed $aborted
      * @return array
      */
-    private function buildCurlGetInfo($cURL, array $options, $aborted): array
+    private function buildCurlGetInfo($cURL, array $options): array
     {
         $result = curl_getinfo($cURL);
 
@@ -434,16 +419,9 @@ class Http
             }
         }
 
-        if ($aborted) {
+        if (isset($result['curl_error']) && stripos($result['curl_error'], 'Callback aborted') !== false) {
             $result['http_code'] = 0;
-
-            if (! empty($result['curl_error'])) {
-                $result['curl_error'] .= ' / ';
-            } else {
-                $result['curl_error'] = '';
-            }
-
-            $result['curl_error'] .= "Aborted due to size limit: {$options['size_limit']} kB";
+            $result['curl_error'] .= " (due to size limit: {$options['size_limit']} kB)";
         }
 
         return $result;
