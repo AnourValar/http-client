@@ -5,7 +5,7 @@
     "homepage": "https://github.com/AnourValar/http-client",
     "license": "MIT",
     "require": {
-        "php": ">=8.0"
+        "php": "^8.1"
     },
     "autoload": {
         "psr-4": {"AnourValar\\HttpClient\\": "src/"}

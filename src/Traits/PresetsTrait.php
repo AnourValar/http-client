@@ -5,6 +5,23 @@ namespace AnourValar\HttpClient\Traits;
 trait PresetsTrait
 {
     /**
+     * Set size limit for response body (download)
+     *
+     * @param int $kbytes
+     * @return self
+     */
+    public function sizeLimit(int $kbytes = null): self
+    {
+        if ($kbytes) {
+            $this->options['size_limit'] = $kbytes;
+        } else {
+            unset($this->options['size_limit']);
+        }
+
+        return $this;
+    }
+
+    /**
      * Returns an object for file uploading
      *
      * @param string $filename
@@ -27,7 +44,7 @@ trait PresetsTrait
      */
     public function stringFile(string $content, string $mimetype = null, string $postname = null): \CURLStringFile
     {
-        return new \CURLStringFile($content, $mimetype, $postname); // PHP 8.1
+        return new \CURLStringFile($content, $mimetype, $postname);
     }
 
     /**
