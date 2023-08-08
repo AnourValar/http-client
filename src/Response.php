@@ -38,7 +38,7 @@ class Response implements \ArrayAccess
         $this->responseHeaders = $this->parseHeaders($responseHeaders);
 
         $this->responseBody = $responseBody;
-        $this->responseBodyJson = json_decode($responseBody, true);
+        $this->responseBodyJson = json_decode((string) $responseBody, true);
 
         $this->curlGetInfo = $curlGetInfo;
     }
