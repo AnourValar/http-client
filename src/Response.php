@@ -46,11 +46,11 @@ class Response implements \ArrayAccess
     /**
      * String access
      *
-     * @return string|null
+     * @return string
      */
     public function __toString()
     {
-        return $this->responseBody;
+        return (string) $this->responseBody;
     }
 
     /**
