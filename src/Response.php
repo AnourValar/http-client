@@ -89,7 +89,7 @@ class Response implements \ArrayAccess
      */
     public function status(): ?int
     {
-        return ( $this->curlGetInfo['http_code'] ?? null );
+        return ($this->curlGetInfo['http_code'] ?? null);
     }
 
     /**
@@ -178,7 +178,7 @@ class Response implements \ArrayAccess
         } else {
             $body = $this->body();
 
-            if (stripos(( $this->curlGetInfo()['content_type'] ?? '' ), 'cp1251') !== false) {
+            if (stripos(($this->curlGetInfo()['content_type'] ?? ''), 'cp1251') !== false) {
                 $body = mb_convert_encoding($body, 'utf-8', 'cp1251');
             }
 

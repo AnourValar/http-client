@@ -222,7 +222,7 @@ trait PresetsTrait
      */
     public function referer(string $url): self
     {
-        $this->curlOption(CURLOPT_REFERER, $this->canonizeUrl($url));
+        $this->curlOption(CURLOPT_REFERER, $this->canonizeUrl($url, []));
 
         return $this;
     }

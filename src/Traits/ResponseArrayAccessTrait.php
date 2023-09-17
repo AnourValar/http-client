@@ -50,6 +50,6 @@ trait ResponseArrayAccessTrait
      */
     public function offsetGet($offset): mixed
     {
-        return ( $this->responseBodyJson[$offset] ?? null );
+        return ($this->responseBodyJson[$offset] ?? null);
     }
 }

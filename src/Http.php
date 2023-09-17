@@ -10,17 +10,17 @@ class Http
     /**
      * Content-Type
      */
-    const CONTENT_TYPE_JSON = 'application/json';
-    const CONTENT_TYPE_HTML = 'text/html';
-    const CONTENT_TYPE_PLAIN = 'text/plain';
-    const CONTENT_TYPE_EXCEL = 'application/vnd.ms-excel';
-    const CONTENT_TYPE_PDF = 'application/pdf';
-    const CONTENT_TYPE_XML = 'text/xml';
-    const CONTENT_TYPE_ZIP = 'application/zip';
-    const CONTENT_TYPE_GZIP = 'application/gzip';
-    const CONTENT_TYPE_GIF = 'image/gif';
-    const CONTENT_TYPE_JPG = 'image/jpeg';
-    const CONTENT_TYPE_PNG = 'image/png';
+    public const CONTENT_TYPE_JSON = 'application/json';
+    public const CONTENT_TYPE_HTML = 'text/html';
+    public const CONTENT_TYPE_PLAIN = 'text/plain';
+    public const CONTENT_TYPE_EXCEL = 'application/vnd.ms-excel';
+    public const CONTENT_TYPE_PDF = 'application/pdf';
+    public const CONTENT_TYPE_XML = 'text/xml';
+    public const CONTENT_TYPE_ZIP = 'application/zip';
+    public const CONTENT_TYPE_GZIP = 'application/gzip';
+    public const CONTENT_TYPE_GIF = 'image/gif';
+    public const CONTENT_TYPE_JPG = 'image/jpeg';
+    public const CONTENT_TYPE_PNG = 'image/png';
 
     /**
      * @var array
@@ -141,8 +141,8 @@ class Http
         $method = mb_strtoupper($method);
 
         if ($method == 'HEAD') {
-             $this->curlOption(CURLOPT_NOBODY, true);
-             $this->curlOption(CURLOPT_CUSTOMREQUEST, null); // remove from options
+            $this->curlOption(CURLOPT_NOBODY, true);
+            $this->curlOption(CURLOPT_CUSTOMREQUEST, null); // remove from options
         } else {
             $this->curlOption(CURLOPT_CUSTOMREQUEST, $method);
         }
@@ -235,8 +235,7 @@ class Http
             $cURLs[$key] = curl_copy_handle($cURL);
 
             curl_setopt($cURLs[$key], CURLOPT_URL, $this->canonizeUrl($url, $options));
-            curl_setopt($cURLs[$key], CURLOPT_HEADERFUNCTION, function ($cURL, $header) use (&$headers, $key)
-            {
+            curl_setopt($cURLs[$key], CURLOPT_HEADERFUNCTION, function ($cURL, $header) use (&$headers, $key) {
                 if (! isset($headers[$key])) {
                     $headers[$key] = '';
                 }
@@ -254,7 +253,7 @@ class Http
                 curl_multi_select($mcURL);
             }
             curl_multi_info_read($mcURL);
-        } while($active && $status == CURLM_OK);
+        } while ($active && $status == CURLM_OK);
 
         $result = [];
 
@@ -290,8 +289,7 @@ class Http
      */
     private function applyDefaultOptions(): void
     {
-        $this->remember(function (\AnourValar\HttpClient\Http $http)
-        {
+        $this->remember(function (\AnourValar\HttpClient\Http $http) {
             $http
                 ->curlOption(CURLOPT_ENCODING, '')
                 ->curlOption(CURLOPT_FOLLOWLOCATION, true)
@@ -306,7 +304,7 @@ class Http
      * @param string $url
      * @param mixed $options
      * @param mixed $headers
-     * @return resource
+     * @return \CurlHandle
      */
     private function prepare(string $url = null, &$options = null, &$headers = null)
     {
@@ -324,7 +322,8 @@ class Http
 
 
         // Body specific
-        if (isset($options['curl'][CURLOPT_POSTFIELDS]) &&
+        if (
+            isset($options['curl'][CURLOPT_POSTFIELDS]) &&
             is_array($options['curl'][CURLOPT_POSTFIELDS]) &&
             isset($options['curl'][CURLOPT_HTTPHEADER]) &&
             in_array('Content-Type: '.self::CONTENT_TYPE_JSON, (array) $options['curl'][CURLOPT_HTTPHEADER])
@@ -334,14 +333,14 @@ class Http
 
 
         // Method specific
-        $method = ( $options['curl'][CURLOPT_CUSTOMREQUEST] ?? null );
+        $method = ($options['curl'][CURLOPT_CUSTOMREQUEST] ?? null);
 
         if ($method == 'POST') {
             if (isset($options['curl'][CURLOPT_USERAGENT])) {
                 curl_setopt($cURL, CURLOPT_POST, 1);
             }
 
-            curl_setopt($cURL, CURLOPT_POSTREDIR, 1|2|4);
+            curl_setopt($cURL, CURLOPT_POSTREDIR, 1 | 2 | 4);
         }
 
 
@@ -356,7 +355,7 @@ class Http
             curl_setopt(
                 $cURL,
                 CURLOPT_PROGRESSFUNCTION,
-                function($cURL, $downloadSize, $downloaded, $uploadSize, $uploaded) use ($options) {
+                function ($cURL, $downloadSize, $downloaded, $uploadSize, $uploaded) use ($options) {
                     if ($downloadSize > ($options['size_limit'] * 1024)) {
                         return 1; // non-0 breaks the connection
                     }
@@ -369,8 +368,7 @@ class Http
         curl_setopt($cURL, CURLINFO_HEADER_OUT, true);
 
         if (! is_null($url)) {
-            curl_setopt($cURL, CURLOPT_HEADERFUNCTION, function ($cURL, $header) use (&$headers)
-            {
+            curl_setopt($cURL, CURLOPT_HEADERFUNCTION, function ($cURL, $header) use (&$headers) {
                 $headers .= $header;
                 return mb_strlen($header);
             });
@@ -395,7 +393,7 @@ class Http
     }
 
     /**
-     * @param resource $cURL
+     * @param \CurlHandle $cURL
      * @param array $options
      * @return array
      */
@@ -408,7 +406,7 @@ class Http
             unset($result['curl_error']);
         }
 
-        foreach (( $options['extend_info'] ?? [] ) as $key => $value) {
+        foreach (($options['extend_info'] ?? []) as $key => $value) {
             if (isset($options['curl'][$value])) {
                 $result[$key] = $options['curl'][$value];
 
