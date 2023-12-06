@@ -223,6 +223,8 @@ class Http
      *
      * @param array $urls
      * @return array
+     * @psalm-suppress UnusedFunctionCall
+     * @psalm-suppress UnusedForeachValue
      */
     public function multiExec(array $urls): array
     {
@@ -276,6 +278,7 @@ class Http
     /**
      * @throws \LogicException
      * @return void
+     * @psalm-suppress UndefinedFunction
      */
     protected function checkForAvailability(): void
     {
