@@ -221,13 +221,23 @@ class Http
     /**
      * Send multiple http requests
      *
-     * @param array $urls
+     * @param array|string $urls
+     * @param int $times
      * @return array
      * @psalm-suppress UnusedFunctionCall
      * @psalm-suppress UnusedForeachValue
      */
-    public function multiExec(array $urls): array
+    public function multiExec(array|string $urls, int $times = 1): array
     {
+        $urls = (array) $urls;
+        if ($times > 1) {
+            $originalUrls = $urls;
+            while ($times > 1) {
+                $urls = array_merge($urls, $originalUrls);
+                $times--;
+            }
+        }
+
         $cURL = $this->prepare(null, $options);
         $mcURL = curl_multi_init();
 
