@@ -9,8 +9,10 @@ parameters:
     ignoreErrors:
         - '#Call to function curl_multi_info_read\(\) on a separate line has no effect#'
         - '#Function config not found#'
+        - '#Function event not found#'
 
     excludePaths:
+        - './src/Events/HttpRequestComplete.php'
 
     checkFunctionNameCase: true
     checkInternalClassCaseSensitivity: true

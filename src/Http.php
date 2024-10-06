@@ -2,6 +2,8 @@
 
 namespace AnourValar\HttpClient;
 
+use AnourValar\HttpClient\Events\HttpRequestComplete;
+
 class Http
 {
     use \AnourValar\HttpClient\Traits\HelpersTrait;
@@ -206,6 +208,7 @@ class Http
      */
     public function exec(string $url): \AnourValar\HttpClient\Response
     {
+        $startedAt = time();
         $cURL = $this->prepare($url, $options, $headers);
 
         $responseBody = curl_exec($cURL);
@@ -213,7 +216,7 @@ class Http
 
         curl_close($cURL);
         $response = new \AnourValar\HttpClient\Response($headers, $responseBody, $curlGetInfo);
-        $this->handleAfter($response, $options);
+        $this->handleAfter($response, $options, $startedAt);
 
         return $response;
     }
@@ -229,6 +232,7 @@ class Http
      */
     public function multiExec(array|string $urls, int $times = 1): array
     {
+        $startedAt = time();
         $urls = (array) $urls;
         if ($times > 1) {
             $originalUrls = $urls;
@@ -277,7 +281,7 @@ class Http
 
             curl_multi_remove_handle($mcURL, $cURLs[$key]);
             curl_close($cURLs[$key]);
-            $this->handleAfter($result[$key], $options);
+            $this->handleAfter($result[$key], $options, $startedAt);
         }
 
         curl_multi_close($mcURL);
@@ -445,9 +449,11 @@ class Http
     /**
      * @param \AnourValar\HttpClient\Response $response
      * @param array $options
+     * @param int $startedAt
      * @return void
+     * @psalm-suppress UndefinedFunction
      */
-    private function handleAfter(\AnourValar\HttpClient\Response $response, array $options): void
+    private function handleAfter(\AnourValar\HttpClient\Response $response, array $options, int $startedAt): void
     {
         if (isset($options['curl'][CURLOPT_FILE]) && is_resource($options['curl'][CURLOPT_FILE])) {
             $file = stream_get_meta_data($options['curl'][CURLOPT_FILE])['uri'];
@@ -460,6 +466,11 @@ class Http
 
         if (isset($options['curl'][CURLOPT_INFILE]) && is_resource($options['curl'][CURLOPT_INFILE])) {
             fclose($options['curl'][CURLOPT_INFILE]);
+        }
+
+        if (defined('LARAVEL_START')) {
+            $curlGetInfo = $response->curlGetInfo();
+            event(new HttpRequestComplete($curlGetInfo['url'], $curlGetInfo['effective_method'], $startedAt, time()));
         }
     }
 }
