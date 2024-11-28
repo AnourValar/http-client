@@ -318,12 +318,12 @@ class Http
     }
 
     /**
-     * @param string $url
+     * @param string|null $url
      * @param mixed $options
      * @param mixed $headers
      * @return \CurlHandle
      */
-    private function prepare(string $url = null, &$options = null, &$headers = null)
+    private function prepare(?string $url = null, &$options = null, &$headers = null)
     {
         $this->checkForAvailability();
 

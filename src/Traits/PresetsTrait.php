@@ -7,10 +7,10 @@ trait PresetsTrait
     /**
      * Set size limit for response body (download)
      *
-     * @param int $kbytes
+     * @param int|null $kbytes
      * @return self
      */
-    public function sizeLimit(int $kbytes = null): self
+    public function sizeLimit(?int $kbytes = null): self
     {
         if ($kbytes) {
             $this->options['size_limit'] = $kbytes;
@@ -25,11 +25,11 @@ trait PresetsTrait
      * Returns an object for file uploading
      *
      * @param string $filename
-     * @param string $mimetype
-     * @param string $postname
+     * @param string|null $mimetype
+     * @param string|null $postname
      * @return \CURLFile
      */
-    public function file(string $filename, string $mimetype = null, string $postname = null): \CURLFile
+    public function file(string $filename, ?string $mimetype = null, ?string $postname = null): \CURLFile
     {
         return new \CURLFile($filename, $mimetype, $postname);
     }
@@ -38,11 +38,11 @@ trait PresetsTrait
      * Returns an object for file uploading (from buffer)
      *
      * @param string $content
-     * @param string $mimetype
-     * @param string $postname
+     * @param string|null $mimetype
+     * @param string|null $postname
      * @return \CURLStringFile
      */
-    public function stringFile(string $content, string $mimetype = null, string $postname = null): \CURLStringFile
+    public function stringFile(string $content, ?string $mimetype = null, ?string $postname = null): \CURLStringFile
     {
         return new \CURLStringFile($content, $mimetype, $postname);
     }
@@ -50,10 +50,10 @@ trait PresetsTrait
     /**
      * Set browser specific headers
      *
-     * @param string $userAgent
+     * @param string|null $userAgent
      * @return self
      */
-    public function asBrowser($userAgent = null): self
+    public function asBrowser(?string $userAgent = null): self
     {
         if ($userAgent === null) {
             $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36';
@@ -104,10 +104,10 @@ trait PresetsTrait
      * Example: 127.0.0.1:80 / login:password
      *
      * @param string $host
-     * @param string $loginPassword
+     * @param string|null $loginPassword
      * @return self
      */
-    public function proxy(string $host, string $loginPassword = null): self
+    public function proxy(string $host, ?string $loginPassword = null): self
     {
         $this->curlOption(CURLOPT_PROXY, $host);
         $this->curlOption(CURLOPT_PROXYUSERPWD, $loginPassword);
@@ -145,11 +145,11 @@ trait PresetsTrait
     /**
      * Set request timeouts
      *
-     * @param int $connectMs
-     * @param int $totalMs
+     * @param int|null $connectMs
+     * @param int|null $totalMs
      * @return self
      */
-    public function timeouts(int $connectMs = null, int $totalMs = null): self
+    public function timeouts(?int $connectMs = null, ?int $totalMs = null): self
     {
         $this->curlOption(CURLOPT_CONNECTTIMEOUT_MS, $connectMs);
         $this->curlOption(CURLOPT_TIMEOUT_MS, $totalMs);

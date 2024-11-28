@@ -95,10 +95,10 @@ class Response implements \ArrayAccess
     /**
      * Check if request succeeded (2xx http code)
      *
-     * @param string $successKey
+     * @param string|null $successKey
      * @return bool
      */
-    public function success(string $successKey = null): bool
+    public function success(?string $successKey = null): bool
     {
         $status = $this->status();
 
