@@ -354,7 +354,7 @@ class Http
 
         if ($method == 'POST') {
             if (isset($options['curl'][CURLOPT_USERAGENT])) {
-                curl_setopt($cURL, CURLOPT_POST, 1);
+                curl_setopt($cURL, CURLOPT_POST, true);
             }
 
             curl_setopt($cURL, CURLOPT_POSTREDIR, 1 | 2 | 4);

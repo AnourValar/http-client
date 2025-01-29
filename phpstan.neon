@@ -3,20 +3,20 @@ parameters:
     paths:
         - src
 
-    # The level 9 is the highest level
+    # The level 10 is the highest level
     level: 5
 
     ignoreErrors:
         - '#Call to function curl_multi_info_read\(\) on a separate line has no effect#'
         - '#Function config not found#'
         - '#Function event not found#'
+        - '#is_numeric\(\) with int will always evaluate to true#'
 
     excludePaths:
         - './src/Events/HttpRequestComplete.php'
 
     checkFunctionNameCase: true
     checkInternalClassCaseSensitivity: true
-    checkAlwaysTrueInstanceof: true
     reportMaybesInMethodSignatures: true
     reportStaticMethodSignatures: true
     checkUninitializedProperties: true
@@ -24,3 +24,6 @@ parameters:
     reportAlwaysTrueInLastCondition: true
     reportWrongPhpDocTypeInVarTag: true
     checkMissingCallableSignature: true
+    reportPossiblyNonexistentGeneralArrayOffset: true
+    reportPossiblyNonexistentConstantArrayOffset: true
+    reportAnyTypeWideningInVarTag: true
