@@ -90,13 +90,26 @@ trait PresetsTrait
      * @param string $filename
      * @return self
      */
-    public function putUpload(string $filename): self
+    public function putFile(string $filename): self
     {
         return $this
             ->method('PUT')
             ->curlOption(CURLOPT_PUT, 1)
             ->curlOption(CURLOPT_INFILE, fopen($filename, 'r'))
             ->curlOption(CURLOPT_INFILESIZE, filesize($filename));
+    }
+
+    /**
+     * Upload a file (from a buffer) via PUT request
+     *
+     * @param string $content
+     * @return self
+     */
+    public function putStringFile(string $content): self
+    {
+        return $this
+            ->method('PUT')
+            ->body($content);
     }
 
     /**
