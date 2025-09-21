@@ -201,6 +201,23 @@ class Http
     }
 
     /**
+     * Set url query
+     *
+     * @param array|null $query
+     * @return self
+     */
+    public function query(?array $query): self
+    {
+        if (is_null($query)) {
+            unset($this->options['query']);
+        } else {
+            $this->options['query'] = $query;
+        }
+
+        return $this;
+    }
+
+    /**
      * Send http request
      *
      * @param string $url
@@ -404,6 +421,11 @@ class Http
     {
         if (isset($options['base_url'])) {
             $url = $options['base_url'] . $url;
+        }
+
+        if (! empty($options['query'])) {
+            $url = rtrim($url, '?');
+            $url .= '?' . http_build_query($options['query']);
         }
 
         return str_replace(' ', '%20', $url);
