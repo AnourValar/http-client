@@ -38,13 +38,13 @@ trait PresetsTrait
      * Returns an object for file uploading (from buffer)
      *
      * @param string $content
-     * @param string|null $mimetype
-     * @param string|null $postname
+     * @param string $mimetype
+     * @param string $postname
      * @return \CURLStringFile
      */
-    public function stringFile(string $content, ?string $mimetype = null, ?string $postname = null): \CURLStringFile
+    public function stringFile(string $content, string $mimetype = 'application/octet-stream', string $postname = 'file'): \CURLStringFile
     {
-        return new \CURLStringFile($content, $mimetype, $postname);
+        return new \CURLStringFile($content, $postname, $mimetype);
     }
 
     /**
