@@ -162,9 +162,10 @@ class Response implements \ArrayAccess
      * Dump
      *
      * @param bool $all
+     * @param bool $protectSensitive
      * @return array
      */
-    public function dump(bool $all = false): array
+    public function dump(bool $all = false, bool $protectSensitive = true): array
     {
         $result = [];
 
@@ -183,6 +184,14 @@ class Response implements \ArrayAccess
             }
 
             $result['response_body'] = $body;
+        }
+
+        if ($protectSensitive && isset($result['curl_getinfo']['request_header'])) {
+            $result['curl_getinfo']['request_header'] = preg_replace_callback(
+                '#^(Authorization\:\s*)(.+)$#mu',
+                fn ($patterns) => sprintf("%s<%s>\r", $patterns[1], hash('sha256', trim($patterns[2]))),
+                $result['curl_getinfo']['request_header']
+            );
         }
 
         return $result;
