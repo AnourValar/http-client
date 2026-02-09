@@ -231,7 +231,6 @@ class Http
         $responseBody = curl_exec($cURL);
         $curlGetInfo = $this->buildCurlGetInfo($cURL, $options);
 
-        curl_close($cURL);
         $response = new \AnourValar\HttpClient\Response($headers, $responseBody, $curlGetInfo);
         $this->handleAfter($response, $options, $startedAt);
 
@@ -297,7 +296,6 @@ class Http
             $result[$key] = new \AnourValar\HttpClient\Response(($headers[$key] ?? ''), $responseBody, $curlGetInfo);
 
             curl_multi_remove_handle($mcURL, $cURLs[$key]);
-            curl_close($cURLs[$key]);
             $this->handleAfter($result[$key], $options, $startedAt);
         }
 
