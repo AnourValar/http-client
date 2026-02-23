@@ -318,10 +318,15 @@ class Http
 
     /**
      * @return void
+     * @psalm-suppress UndefinedFunction
      */
     private function applyDefaultOptions(): void
     {
         $this->remember(function (\AnourValar\HttpClient\Http $http) {
+            if (PHP_VERSION_ID >= 80500) {
+                $http->curlOption(CURLOPT_SHARE, curl_share_init_persistent([CURL_LOCK_DATA_SSL_SESSION, CURL_LOCK_DATA_DNS]));
+            }
+
             $http
                 ->curlOption(CURLOPT_ENCODING, '')
                 ->curlOption(CURLOPT_FOLLOWLOCATION, true)

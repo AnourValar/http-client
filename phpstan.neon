@@ -11,6 +11,7 @@ parameters:
         - '#Function config not found#'
         - '#Function event not found#'
         - '#is_numeric\(\) with int will always evaluate to true#'
+        - '#curl_share_init_persistent#'
 
     excludePaths:
         - './src/Events/HttpRequestComplete.php'
