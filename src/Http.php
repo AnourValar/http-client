@@ -318,7 +318,6 @@ class Http
 
     /**
      * @return void
-     * @psalm-suppress UndefinedFunction
      */
     private function applyDefaultOptions(): void
     {
