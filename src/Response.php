@@ -159,6 +159,16 @@ class Response implements \ArrayAccess
     }
 
     /**
+     * Total time duration (ms)
+     *
+     * @return int
+     */
+    public function durationMs(): int
+    {
+        return (int) ($this->curlGetInfo['total_time'] * 1000);
+    }
+
+    /**
      * Dump
      *
      * @param bool $all
