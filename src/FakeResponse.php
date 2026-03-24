@@ -20,7 +20,7 @@ class FakeResponse extends Response
         }
 
         if (! is_array($curlGetInfo)) {
-            $curlGetInfo = ['http_code' => $curlGetInfo, 'total_time' => 100];
+            $curlGetInfo = ['http_code' => $curlGetInfo, 'total_time' => 0.1];
         }
 
         parent::__construct($responseHeaders, $responseBody, $curlGetInfo);
