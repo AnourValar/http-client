@@ -263,4 +263,76 @@ trait PresetsTrait
 
         return $this;
     }
+
+    /**
+     * Builds a multipart/form-data body (RFC 7578).
+     *
+     * @param array $data
+     * @return string
+     */
+    public function formMultipart(array $data): string
+    {
+        $boundary = bin2hex(random_bytes(20));
+        $eol = "\r\n";
+        $body = '';
+
+        foreach ($data as $name => $value) {
+            $headers = [];
+
+            if ($value instanceof \CURLFile) {
+                $filename = $value->getPostFilename() ?: basename($value->getFilename());
+                $mime     = $value->getMimeType() ?: 'application/octet-stream';
+                $content  = file_get_contents($value->getFilename());
+
+                if ($content === false) {
+                    throw new \RuntimeException('Unable to read file: ' . $value->getFilename());
+                }
+
+                $headers['Content-Disposition'] = sprintf(
+                    'form-data; name="%s"; filename="%s"',
+                    $this->escapeMultipartParam((string) $name),
+                    $this->escapeMultipartParam($filename),
+                );
+                $headers['Content-Type'] = $mime;
+            } elseif ($value instanceof \CURLStringFile) {
+                $content = $value->data;
+
+                $headers['Content-Disposition'] = sprintf(
+                    'form-data; name="%s"; filename="%s"',
+                    $this->escapeMultipartParam((string) $name),
+                    $this->escapeMultipartParam($value->postname),
+                );
+                $headers['Content-Type'] = $value->mime ?: 'application/octet-stream';
+            } else {
+                $content = (string) $value;
+
+                $headers['Content-Disposition'] = sprintf(
+                    'form-data; name="%s"',
+                    $this->escapeMultipartParam((string) $name),
+                );
+            }
+
+            $body .= '--' . $boundary . $eol;
+            foreach ($headers as $h => $v) {
+                $body .= $h . ': ' . $v . $eol;
+            }
+            $body .= $eol . $content . $eol;
+        }
+
+        $body = $body . '--' . $boundary . '--' . $eol;
+        $this
+            ->headers(['Content-Type' => 'multipart/form-data; boundary=' . $boundary])
+            ->body($body);
+
+        return $body;
+    }
+
+    /**
+     * @param string $value
+     * @return string
+     */
+    private function escapeMultipartParam(string $value): string
+    {
+        return str_replace(['"', "\r", "\n"], ['%22', '%0D', '%0A'], $value);
+    }
 }
