@@ -56,7 +56,7 @@ trait PresetsTrait
     public function asBrowser(?string $userAgent = null): self
     {
         if ($userAgent === null) {
-            $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36';
+            $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36';
         }
 
         $this->curlOption(CURLOPT_USERAGENT, $userAgent);
@@ -265,7 +265,7 @@ trait PresetsTrait
     }
 
     /**
-     * Builds a multipart/form-data body (RFC 7578).
+     * "Manual" multipart/form-data body (for cases like "hmac")
      *
      * @param array $data
      * @return string
