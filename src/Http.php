@@ -243,8 +243,6 @@ class Http
      * @param array|string $urls
      * @param int $times
      * @return array
-     * @psalm-suppress UnusedFunctionCall
-     * @psalm-suppress UnusedForeachValue
      */
     public function multiExec(array|string $urls, int $times = 1): array
     {
@@ -307,7 +305,6 @@ class Http
     /**
      * @throws \LogicException
      * @return void
-     * @psalm-suppress UndefinedFunction
      */
     protected function checkForAvailability(): void
     {
@@ -475,7 +472,6 @@ class Http
      * @param array $options
      * @param int $startedAt
      * @return void
-     * @psalm-suppress UndefinedFunction
      */
     private function handleAfter(\AnourValar\HttpClient\Response $response, array $options, int $startedAt): void
     {
