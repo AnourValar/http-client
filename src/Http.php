@@ -361,7 +361,7 @@ class Http
             isset($options['curl'][CURLOPT_HTTPHEADER]) &&
             in_array('Content-Type: '.self::CONTENT_TYPE_JSON, (array) $options['curl'][CURLOPT_HTTPHEADER])
         ) {
-            $options['curl'][CURLOPT_POSTFIELDS] = json_encode($options['curl'][CURLOPT_POSTFIELDS]);
+            $options['curl'][CURLOPT_POSTFIELDS] = json_encode($options['curl'][CURLOPT_POSTFIELDS], JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION);
         }
 
 

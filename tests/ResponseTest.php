@@ -214,12 +214,43 @@ class ResponseTest extends AbstractSuite
 
         $protected = $response->dump();
         $this->assertStringNotContainsString('super-secret', $protected['curl_getinfo']['request_header']);
-        $this->assertStringContainsString('Authorization: <' . hash('sha256', 'Bearer super-secret') . '>', $protected['curl_getinfo']['request_header']);
+        // Each token is masked in place: first/last quarter kept, the middle replaced with asterisks
+        $this->assertStringContainsString('Authorization: B****r s***r-s****t', $protected['curl_getinfo']['request_header']);
         // The non-sensitive headers are left untouched
         $this->assertStringContainsString('Accept: */*', $protected['curl_getinfo']['request_header']);
 
         $raw = $response->dump(false, false);
         $this->assertStringContainsString('super-secret', $raw['curl_getinfo']['request_header']);
+    }
+
+    /**
+     * @return void
+     */
+    public function test_dump_masks_long_body_parameters()
+    {
+        // A long token-like value (>= 30 chars): keep first/last 10, mask the rest
+        $token = 'abcdefghij' . str_repeat('X', 20) . 'klmnopqrst'; // exactly 40 chars
+
+        $response = new Response(
+            null,
+            'body',
+            ['http_code' => 500, 'total_time' => 0.1, 'request_body' => $token]
+        );
+
+        $masked = $response->dump()['curl_getinfo']['request_body'];
+        $this->assertStringNotContainsString($token, $masked);
+        $this->assertSame('abcdefghij' . str_repeat('*', 20) . 'klmnopqrst', $masked);
+
+        // Short, non-sensitive values are left untouched
+        $shortResponse = new Response(
+            null,
+            'body',
+            ['http_code' => 500, 'total_time' => 0.1, 'request_body' => 'foo=bar&baz=qux']
+        );
+        $this->assertSame('foo=bar&baz=qux', $shortResponse->dump()['curl_getinfo']['request_body']);
+
+        // protectSensitive disabled => raw body
+        $this->assertSame($token, $response->dump(false, false)['curl_getinfo']['request_body']);
     }
 
     /**

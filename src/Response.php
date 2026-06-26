@@ -196,15 +196,50 @@ class Response implements \ArrayAccess
             $result['response_body'] = $body;
         }
 
-        if ($protectSensitive && isset($result['curl_getinfo']['request_header'])) {
-            $result['curl_getinfo']['request_header'] = preg_replace_callback(
-                '#^(Authorization\:\s*)(.+)$#mu',
-                fn ($patterns) => sprintf("%s<%s>\r", $patterns[1], hash('sha256', trim($patterns[2]))),
-                $result['curl_getinfo']['request_header']
-            );
+        if ($protectSensitive) {
+            if (isset($result['curl_getinfo']['request_header'])) {
+                $result['curl_getinfo']['request_header'] = preg_replace_callback(
+                    '#^(Authorization\:\s*)(.+)$#mu',
+                    fn ($patterns) => sprintf("%s%s\r", $patterns[1], $this->maskSensitive(trim($patterns[2]), 5)),
+                    $result['curl_getinfo']['request_header']
+                );
+            }
+
+            foreach (['request_header', 'request_body', 'request_body_put'] as $key) {
+                if (isset($result['curl_getinfo'][$key])) {
+                    $result['curl_getinfo'][$key] = $this->maskSensitive($result['curl_getinfo'][$key], 30);
+                }
+            }
         }
 
         return $result;
+    }
+
+    /**
+     * @param mixed $value
+     * @param int $limit
+     * @return mixed
+     */
+    private function maskSensitive($value, int $limit)
+    {
+        if (is_array($value)) {
+            return array_map([$this, 'maskSensitive'], $value);
+        }
+
+        if (! is_string($value)) {
+            return $value;
+        }
+
+        return preg_replace_callback(
+            '#[a-zA-Z0-9\.\%\=\/\\\+]{'.$limit.',}#u',
+            function ($patterns) use ($limit) {
+                $length = mb_strlen($patterns[0]);
+                $limit = (int) floor($length / 4);
+
+                return mb_substr($patterns[0], 0, $limit) . str_repeat('*', $length - $limit * 2) . mb_substr($patterns[0], -$limit);
+            },
+            $value
+        );
     }
 
     /**
