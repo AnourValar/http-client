@@ -214,7 +214,8 @@ class ResponseTest extends AbstractSuite
 
         $protected = $response->dump();
         $this->assertStringNotContainsString('super-secret', $protected['curl_getinfo']['request_header']);
-        // Each token is masked in place: first/last quarter kept, the middle replaced with asterisks
+        // Each token is masked in place: first/last sixth kept (a quarter for tokens shorter
+        // than 6 chars, e.g. "super"), the middle replaced with asterisks
         $this->assertStringContainsString('Authorization: B****r s***r-s****t', $protected['curl_getinfo']['request_header']);
         // The non-sensitive headers are left untouched
         $this->assertStringContainsString('Accept: */*', $protected['curl_getinfo']['request_header']);
@@ -228,7 +229,7 @@ class ResponseTest extends AbstractSuite
      */
     public function test_dump_masks_long_body_parameters()
     {
-        // A long token-like value (>= 30 chars): keep first/last 10, mask the rest
+        // A long token-like value (>= 30 chars): keep first/last sixth, mask the rest
         $token = 'abcdefghij' . str_repeat('X', 20) . 'klmnopqrst'; // exactly 40 chars
 
         $response = new Response(
@@ -239,7 +240,7 @@ class ResponseTest extends AbstractSuite
 
         $masked = $response->dump()['curl_getinfo']['request_body'];
         $this->assertStringNotContainsString($token, $masked);
-        $this->assertSame('abcdefghij' . str_repeat('*', 20) . 'klmnopqrst', $masked);
+        $this->assertSame('abcdef' . str_repeat('*', 28) . 'opqrst', $masked);
 
         // Short, non-sensitive values are left untouched
         $shortResponse = new Response(

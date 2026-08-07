@@ -223,7 +223,11 @@ class Response implements \ArrayAccess
     private function maskSensitive($value, int $limit)
     {
         if (is_array($value)) {
-            return array_map([$this, 'maskSensitive'], $value);
+            foreach ($value as $key => $item) {
+                $value[$key] = $this->maskSensitive($item, $limit);
+            }
+
+            return $value;
         }
 
         if (! is_string($value)) {
@@ -231,10 +235,11 @@ class Response implements \ArrayAccess
         }
 
         return preg_replace_callback(
-            '#[a-zA-Z0-9\.\%\=\/\\\+]{'.$limit.',}#u',
+            '#[a-zA-Z\d\.\%\=\/\\\+]{'.$limit.',}#u',
             function ($patterns) use ($limit) {
                 $length = mb_strlen($patterns[0]);
-                $limit = (int) floor($length / 4);
+                $delimiter = $length >= 6 ? 6 : 4;
+                $limit = (int) floor($length / $delimiter);
 
                 return mb_substr($patterns[0], 0, $limit) . str_repeat('*', $length - $limit * 2) . mb_substr($patterns[0], -$limit);
             },
