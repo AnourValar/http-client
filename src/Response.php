@@ -235,7 +235,7 @@ class Response implements \ArrayAccess
         }
 
         return preg_replace_callback(
-            '#[a-zA-Z\d\.\%\=\/\\\+]{'.$limit.',}#u',
+            '#[a-zA-Z0-9\:\$\.\%\=\/\\\+]{'.$limit.',}#u',
             function ($patterns) use ($limit) {
                 $length = mb_strlen($patterns[0]);
                 $delimiter = $length >= 6 ? 6 : 4;
